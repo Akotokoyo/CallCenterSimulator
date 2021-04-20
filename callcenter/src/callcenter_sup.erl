@@ -1,9 +1,9 @@
 %%%-------------------------------------------------------------------
-%% @doc CallCenter top level supervisor.
+%% @doc callcenter top level supervisor.
 %% @end
 %%%-------------------------------------------------------------------
 
--module(CallCenter_sup).
+-module(callcenter_sup).
 
 -behaviour(supervisor).
 

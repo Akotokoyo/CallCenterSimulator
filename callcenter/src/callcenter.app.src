@@ -1,8 +1,8 @@
-{application, CallCenter,
+{application, callcenter,
  [{description, "An OTP application"},
   {vsn, "0.1.0"},
   {registered, []},
-  {mod, {CallCenter_app, []}},
+  {mod, {callcenter_app, []}},
   {applications,
    [kernel,
     stdlib
