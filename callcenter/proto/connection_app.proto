@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message ConnectionProcess {
+  string Username = 1;
+  int32 Id = 2;  // Unique ID number for this connection.
+}
