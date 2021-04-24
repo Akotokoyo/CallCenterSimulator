@@ -1,8 +1,12 @@
 -module(callcenter_app).
 
+%TODO: not necessary
+-import(connection_app, [encode_msg/2]).
 -behaviour(application).
 
--export([start/2, stop/1, show_option_list/0, request_random_joke/0]).
+-record(connectionprocess, {username = "", id = []}).
+
+-export([start/2, stop/1, show_option_list/0, request_random_joke/0, start_connection_with_call_center/0, show_caller_id/0]).
 
 start(_StartType, _StartArgs) -> callcenter_sup:start_link().
 
@@ -37,4 +41,10 @@ length_of_list(L) ->
 
 
 %3) Show Unique Id callcenter
-
+%use it on runtime ---> rd(connectionprocess, {username = "", id = []}).
+start_connection_with_call_center() ->
+    %low probability, but is possibile to be duplicated
+    UniqueId = rand:uniform(1000000),
+    Currentuser = "User" ++ erlang:integer_to_list(UniqueId),
+    Test = #'connectionprocess'{username=Currentuser, id=UniqueId},    
+    Test#connectionprocess.id .

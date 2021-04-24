@@ -52,11 +52,11 @@
 -export_type([]).
 
 %% message types
--type 'ConnectionProcess'() :: #'ConnectionProcess'{}.
+-type connectionprocess() :: #connectionprocess{}.
 
--export_type(['ConnectionProcess'/0]).
--type '$msg_name'() :: 'ConnectionProcess'.
--type '$msg'() :: 'ConnectionProcess'().
+-export_type(['connectionprocess'/0]).
+-type '$msg_name'() :: connectionprocess.
+-type '$msg'() :: connectionprocess().
 -export_type(['$msg_name'/0, '$msg'/0]).
 
 -spec encode_msg('$msg'()) -> binary().
@@ -73,13 +73,13 @@ encode_msg(Msg, MsgName, Opts) ->
       false -> ok
     end,
     TrUserData = proplists:get_value(user_data, Opts),
-    case MsgName of 'ConnectionProcess' -> encode_msg_ConnectionProcess(id(Msg, TrUserData), TrUserData) end.
+    case MsgName of connectionprocess -> encode_msg_connectionprocess(id(Msg, TrUserData), TrUserData) end.
 
 
-encode_msg_ConnectionProcess(Msg, TrUserData) -> encode_msg_ConnectionProcess(Msg, <<>>, TrUserData).
+encode_msg_connectionprocess(Msg, TrUserData) -> encode_msg_connectionprocess(Msg, <<>>, TrUserData).
 
 
-encode_msg_ConnectionProcess(#'ConnectionProcess'{'Username' = F1, 'Id' = F2}, Bin, TrUserData) ->
+encode_msg_connectionprocess(#connectionprocess{username = F1, id = F2}, Bin, TrUserData) ->
     B1 = if F1 == undefined -> Bin;
 	    true ->
 		begin
@@ -203,53 +203,53 @@ decode_msg_1_catch(Bin, MsgName, TrUserData) ->
     end.
 -endif.
 
-decode_msg_2_doit('ConnectionProcess', Bin, TrUserData) -> id(decode_msg_ConnectionProcess(Bin, TrUserData), TrUserData).
+decode_msg_2_doit(connectionprocess, Bin, TrUserData) -> id(decode_msg_connectionprocess(Bin, TrUserData), TrUserData).
 
 
 
-decode_msg_ConnectionProcess(Bin, TrUserData) -> dfp_read_field_def_ConnectionProcess(Bin, 0, 0, 0, id([], TrUserData), id(0, TrUserData), TrUserData).
+decode_msg_connectionprocess(Bin, TrUserData) -> dfp_read_field_def_connectionprocess(Bin, 0, 0, 0, id([], TrUserData), id(0, TrUserData), TrUserData).
 
-dfp_read_field_def_ConnectionProcess(<<10, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> d_field_ConnectionProcess_Username(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData);
-dfp_read_field_def_ConnectionProcess(<<16, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> d_field_ConnectionProcess_Id(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData);
-dfp_read_field_def_ConnectionProcess(<<>>, 0, 0, _, F@_1, F@_2, _) -> #'ConnectionProcess'{'Username' = F@_1, 'Id' = F@_2};
-dfp_read_field_def_ConnectionProcess(Other, Z1, Z2, F, F@_1, F@_2, TrUserData) -> dg_read_field_def_ConnectionProcess(Other, Z1, Z2, F, F@_1, F@_2, TrUserData).
+dfp_read_field_def_connectionprocess(<<10, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> d_field_connectionprocess_username(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData);
+dfp_read_field_def_connectionprocess(<<16, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> d_field_connectionprocess_id(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData);
+dfp_read_field_def_connectionprocess(<<>>, 0, 0, _, F@_1, F@_2, _) -> #connectionprocess{username = F@_1, id = F@_2};
+dfp_read_field_def_connectionprocess(Other, Z1, Z2, F, F@_1, F@_2, TrUserData) -> dg_read_field_def_connectionprocess(Other, Z1, Z2, F, F@_1, F@_2, TrUserData).
 
-dg_read_field_def_ConnectionProcess(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) when N < 32 - 7 -> dg_read_field_def_ConnectionProcess(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, TrUserData);
-dg_read_field_def_ConnectionProcess(<<0:1, X:7, Rest/binary>>, N, Acc, _, F@_1, F@_2, TrUserData) ->
+dg_read_field_def_connectionprocess(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) when N < 32 - 7 -> dg_read_field_def_connectionprocess(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, TrUserData);
+dg_read_field_def_connectionprocess(<<0:1, X:7, Rest/binary>>, N, Acc, _, F@_1, F@_2, TrUserData) ->
     Key = X bsl N + Acc,
     case Key of
-      10 -> d_field_ConnectionProcess_Username(Rest, 0, 0, 0, F@_1, F@_2, TrUserData);
-      16 -> d_field_ConnectionProcess_Id(Rest, 0, 0, 0, F@_1, F@_2, TrUserData);
+      10 -> d_field_connectionprocess_username(Rest, 0, 0, 0, F@_1, F@_2, TrUserData);
+      16 -> d_field_connectionprocess_id(Rest, 0, 0, 0, F@_1, F@_2, TrUserData);
       _ ->
 	  case Key band 7 of
-	    0 -> skip_varint_ConnectionProcess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData);
-	    1 -> skip_64_ConnectionProcess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData);
-	    2 -> skip_length_delimited_ConnectionProcess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData);
-	    3 -> skip_group_ConnectionProcess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData);
-	    5 -> skip_32_ConnectionProcess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData)
+	    0 -> skip_varint_connectionprocess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData);
+	    1 -> skip_64_connectionprocess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData);
+	    2 -> skip_length_delimited_connectionprocess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData);
+	    3 -> skip_group_connectionprocess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData);
+	    5 -> skip_32_connectionprocess(Rest, 0, 0, Key bsr 3, F@_1, F@_2, TrUserData)
 	  end
     end;
-dg_read_field_def_ConnectionProcess(<<>>, 0, 0, _, F@_1, F@_2, _) -> #'ConnectionProcess'{'Username' = F@_1, 'Id' = F@_2}.
+dg_read_field_def_connectionprocess(<<>>, 0, 0, _, F@_1, F@_2, _) -> #connectionprocess{username = F@_1, id = F@_2}.
 
-d_field_ConnectionProcess_Username(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) when N < 57 -> d_field_ConnectionProcess_Username(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, TrUserData);
-d_field_ConnectionProcess_Username(<<0:1, X:7, Rest/binary>>, N, Acc, F, _, F@_2, TrUserData) ->
-    {NewFValue, RestF} = begin Len = X bsl N + Acc, <<Utf8:Len/binary, Rest2/binary>> = Rest, {id(unicode:characters_to_list(Utf8, unicode), TrUserData), Rest2} end, dfp_read_field_def_ConnectionProcess(RestF, 0, 0, F, NewFValue, F@_2, TrUserData).
+d_field_connectionprocess_username(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) when N < 57 -> d_field_connectionprocess_username(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, TrUserData);
+d_field_connectionprocess_username(<<0:1, X:7, Rest/binary>>, N, Acc, F, _, F@_2, TrUserData) ->
+    {NewFValue, RestF} = begin Len = X bsl N + Acc, <<Utf8:Len/binary, Rest2/binary>> = Rest, {id(unicode:characters_to_list(Utf8, unicode), TrUserData), Rest2} end, dfp_read_field_def_connectionprocess(RestF, 0, 0, F, NewFValue, F@_2, TrUserData).
 
-d_field_ConnectionProcess_Id(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) when N < 57 -> d_field_ConnectionProcess_Id(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, TrUserData);
-d_field_ConnectionProcess_Id(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, _, TrUserData) ->
-    {NewFValue, RestF} = {begin <<Res:32/signed-native>> = <<(X bsl N + Acc):32/unsigned-native>>, id(Res, TrUserData) end, Rest}, dfp_read_field_def_ConnectionProcess(RestF, 0, 0, F, F@_1, NewFValue, TrUserData).
+d_field_connectionprocess_id(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) when N < 57 -> d_field_connectionprocess_id(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, TrUserData);
+d_field_connectionprocess_id(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, _, TrUserData) ->
+    {NewFValue, RestF} = {begin <<Res:32/signed-native>> = <<(X bsl N + Acc):32/unsigned-native>>, id(Res, TrUserData) end, Rest}, dfp_read_field_def_connectionprocess(RestF, 0, 0, F, F@_1, NewFValue, TrUserData).
 
-skip_varint_ConnectionProcess(<<1:1, _:7, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> skip_varint_ConnectionProcess(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData);
-skip_varint_ConnectionProcess(<<0:1, _:7, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> dfp_read_field_def_ConnectionProcess(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData).
+skip_varint_connectionprocess(<<1:1, _:7, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> skip_varint_connectionprocess(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData);
+skip_varint_connectionprocess(<<0:1, _:7, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> dfp_read_field_def_connectionprocess(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData).
 
-skip_length_delimited_ConnectionProcess(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) when N < 57 -> skip_length_delimited_ConnectionProcess(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, TrUserData);
-skip_length_delimited_ConnectionProcess(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) -> Length = X bsl N + Acc, <<_:Length/binary, Rest2/binary>> = Rest, dfp_read_field_def_ConnectionProcess(Rest2, 0, 0, F, F@_1, F@_2, TrUserData).
+skip_length_delimited_connectionprocess(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) when N < 57 -> skip_length_delimited_connectionprocess(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, TrUserData);
+skip_length_delimited_connectionprocess(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, TrUserData) -> Length = X bsl N + Acc, <<_:Length/binary, Rest2/binary>> = Rest, dfp_read_field_def_connectionprocess(Rest2, 0, 0, F, F@_1, F@_2, TrUserData).
 
-skip_group_ConnectionProcess(Bin, _, Z2, FNum, F@_1, F@_2, TrUserData) -> {_, Rest} = read_group(Bin, FNum), dfp_read_field_def_ConnectionProcess(Rest, 0, Z2, FNum, F@_1, F@_2, TrUserData).
+skip_group_connectionprocess(Bin, _, Z2, FNum, F@_1, F@_2, TrUserData) -> {_, Rest} = read_group(Bin, FNum), dfp_read_field_def_connectionprocess(Rest, 0, Z2, FNum, F@_1, F@_2, TrUserData).
 
-skip_32_ConnectionProcess(<<_:32, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> dfp_read_field_def_ConnectionProcess(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData).
+skip_32_connectionprocess(<<_:32, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> dfp_read_field_def_connectionprocess(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData).
 
-skip_64_ConnectionProcess(<<_:64, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> dfp_read_field_def_ConnectionProcess(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData).
+skip_64_connectionprocess(<<_:64, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, TrUserData) -> dfp_read_field_def_connectionprocess(Rest, Z1, Z2, F, F@_1, F@_2, TrUserData).
 
 read_group(Bin, FieldNum) ->
     {NumBytes, EndTagLen} = read_gr_b(Bin, 0, 0, 0, 0, FieldNum),
@@ -314,18 +314,18 @@ merge_msgs(Prev, New) when element(1, Prev) =:= element(1, New) -> merge_msgs(Pr
 merge_msgs(Prev, New, MsgName) when is_atom(MsgName) -> merge_msgs(Prev, New, MsgName, []);
 merge_msgs(Prev, New, Opts) when element(1, Prev) =:= element(1, New), is_list(Opts) -> merge_msgs(Prev, New, element(1, Prev), Opts).
 
-merge_msgs(Prev, New, MsgName, Opts) -> TrUserData = proplists:get_value(user_data, Opts), case MsgName of 'ConnectionProcess' -> merge_msg_ConnectionProcess(Prev, New, TrUserData) end.
+merge_msgs(Prev, New, MsgName, Opts) -> TrUserData = proplists:get_value(user_data, Opts), case MsgName of connectionprocess -> merge_msg_connectionprocess(Prev, New, TrUserData) end.
 
--compile({nowarn_unused_function,merge_msg_ConnectionProcess/3}).
-merge_msg_ConnectionProcess(#'ConnectionProcess'{'Username' = PFUsername, 'Id' = PFId}, #'ConnectionProcess'{'Username' = NFUsername, 'Id' = NFId}, _) ->
-    #'ConnectionProcess'{'Username' =
-			     if NFUsername =:= undefined -> PFUsername;
-				true -> NFUsername
-			     end,
-			 'Id' =
-			     if NFId =:= undefined -> PFId;
-				true -> NFId
-			     end}.
+-compile({nowarn_unused_function,merge_msg_connectionprocess/3}).
+merge_msg_connectionprocess(#connectionprocess{username = PFusername, id = PFid}, #connectionprocess{username = NFusername, id = NFid}, _) ->
+    #connectionprocess{username =
+			   if NFusername =:= undefined -> PFusername;
+			      true -> NFusername
+			   end,
+		       id =
+			   if NFid =:= undefined -> PFid;
+			      true -> NFid
+			   end}.
 
 
 verify_msg(Msg) when tuple_size(Msg) >= 1 -> verify_msg(Msg, element(1, Msg), []);
@@ -338,22 +338,22 @@ verify_msg(X, _Opts) -> mk_type_error(not_a_known_message, X, []).
 verify_msg(Msg, MsgName, Opts) ->
     TrUserData = proplists:get_value(user_data, Opts),
     case MsgName of
-      'ConnectionProcess' -> v_msg_ConnectionProcess(Msg, [MsgName], TrUserData);
+      connectionprocess -> v_msg_connectionprocess(Msg, [MsgName], TrUserData);
       _ -> mk_type_error(not_a_known_message, Msg, [])
     end.
 
 
--compile({nowarn_unused_function,v_msg_ConnectionProcess/3}).
--dialyzer({nowarn_function,v_msg_ConnectionProcess/3}).
-v_msg_ConnectionProcess(#'ConnectionProcess'{'Username' = F1, 'Id' = F2}, Path, TrUserData) ->
+-compile({nowarn_unused_function,v_msg_connectionprocess/3}).
+-dialyzer({nowarn_function,v_msg_connectionprocess/3}).
+v_msg_connectionprocess(#connectionprocess{username = F1, id = F2}, Path, TrUserData) ->
     if F1 == undefined -> ok;
-       true -> v_type_string(F1, ['Username' | Path], TrUserData)
+       true -> v_type_string(F1, [username | Path], TrUserData)
     end,
     if F2 == undefined -> ok;
-       true -> v_type_int32(F2, ['Id' | Path], TrUserData)
+       true -> v_type_int32(F2, [id | Path], TrUserData)
     end,
     ok;
-v_msg_ConnectionProcess(X, Path, _TrUserData) -> mk_type_error({expected_msg, 'ConnectionProcess'}, X, Path).
+v_msg_connectionprocess(X, Path, _TrUserData) -> mk_type_error({expected_msg, connectionprocess}, X, Path).
 
 -compile({nowarn_unused_function,v_type_int32/3}).
 -dialyzer({nowarn_function,v_type_int32/3}).
@@ -407,16 +407,16 @@ cons(Elem, Acc, _TrUserData) -> [Elem | Acc].
 'erlang_++'(A, B, _TrUserData) -> A ++ B.
 
 
-get_msg_defs() -> [{{msg, 'ConnectionProcess'}, [#field{name = 'Username', fnum = 1, rnum = 2, type = string, occurrence = optional, opts = []}, #field{name = 'Id', fnum = 2, rnum = 3, type = int32, occurrence = optional, opts = []}]}].
+get_msg_defs() -> [{{msg, connectionprocess}, [#field{name = username, fnum = 1, rnum = 2, type = string, occurrence = optional, opts = []}, #field{name = id, fnum = 2, rnum = 3, type = int32, occurrence = optional, opts = []}]}].
 
 
-get_msg_names() -> ['ConnectionProcess'].
+get_msg_names() -> [connectionprocess].
 
 
 get_group_names() -> [].
 
 
-get_msg_or_group_names() -> ['ConnectionProcess'].
+get_msg_or_group_names() -> [connectionprocess].
 
 
 get_enum_names() -> [].
@@ -433,7 +433,7 @@ fetch_msg_def(MsgName) ->
 fetch_enum_def(EnumName) -> erlang:error({no_such_enum, EnumName}).
 
 
-find_msg_def('ConnectionProcess') -> [#field{name = 'Username', fnum = 1, rnum = 2, type = string, occurrence = optional, opts = []}, #field{name = 'Id', fnum = 2, rnum = 3, type = int32, occurrence = optional, opts = []}];
+find_msg_def(connectionprocess) -> [#field{name = username, fnum = 1, rnum = 2, type = string, occurrence = optional, opts = []}, #field{name = id, fnum = 2, rnum = 3, type = int32, occurrence = optional, opts = []}];
 find_msg_def(_) -> error.
 
 
@@ -492,11 +492,11 @@ fqbins_to_service_and_rpc_name(S, R) -> error({gpb_error, {badservice_or_rpc, {S
 service_and_rpc_name_to_fqbins(S, R) -> error({gpb_error, {badservice_or_rpc, {S, R}}}).
 
 
-fqbin_to_msg_name(<<"ConnectionProcess">>) -> 'ConnectionProcess';
+fqbin_to_msg_name(<<"connectionprocess">>) -> connectionprocess;
 fqbin_to_msg_name(E) -> error({gpb_error, {badmsg, E}}).
 
 
-msg_name_to_fqbin('ConnectionProcess') -> <<"ConnectionProcess">>;
+msg_name_to_fqbin(connectionprocess) -> <<"connectionprocess">>;
 msg_name_to_fqbin(E) -> error({gpb_error, {badmsg, E}}).
 
 
@@ -535,7 +535,7 @@ get_all_source_basenames() -> ["connection_app.proto"].
 get_all_proto_names() -> ["connection_app"].
 
 
-get_msg_containment("connection_app") -> ['ConnectionProcess'];
+get_msg_containment("connection_app") -> [connectionprocess];
 get_msg_containment(P) -> error({gpb_error, {badproto, P}}).
 
 
@@ -555,7 +555,7 @@ get_enum_containment("connection_app") -> [];
 get_enum_containment(P) -> error({gpb_error, {badproto, P}}).
 
 
-get_proto_by_msg_name_as_fqbin(<<"ConnectionProcess">>) -> "connection_app";
+get_proto_by_msg_name_as_fqbin(<<"connectionprocess">>) -> "connection_app";
 get_proto_by_msg_name_as_fqbin(E) -> error({gpb_error, {badmsg, E}}).
 
 
