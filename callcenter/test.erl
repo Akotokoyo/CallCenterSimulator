@@ -550,3 +550,11 @@ for2(Max,Min) when Max > 0 ->
 % The process take turns doing their jobs
 spawner2(Max, Min) ->
 	spawn(fun() -> for2(Max, Min) end).
+
+MY FUNC:
+
+%TODO: Not used for now...
+length_of_list(L) -> 
+    LenOfList = length(L),
+    %io:format("~s \n", [integer_to_list(LenOfList)]),
+    LenOfList.
