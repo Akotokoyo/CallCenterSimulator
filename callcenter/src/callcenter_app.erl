@@ -4,15 +4,17 @@
 -import(connection_app, [encode_msg/2, decode_msg/2]).
 -behaviour(application).
 
--export([start/2, stop/1, show_option_list/0, request_random_joke/0, start_connection_with_call_center/0, show_caller_id/0]).
+-export([start/2, stop/1, show_option_list/0, request_random_joke/0, show_caller_id/0]).
 
-start(_StartType, _StartArgs) -> callcenter_sup:start_link().
+start(_StartType, _StartArgs) -> 
+    show_option_list(),
+    callcenter_sup:start_link().
 
 stop(_State) -> ok.
 
 %1) Show Some Option 
 show_option_list() -> 
-    List1 = ["Press 1 to give me an Hug","Press 2 to give me a pizza", "Press 3 to give me some Sushi"],
+    List1 = ["1 - Use show_option_list command to show Option List","2 - Use request_random_joke command to obtain a random joke", "3 - user show_caller_id to show your current id"],
     print_the_list(List1),
     ok.
 
@@ -31,27 +33,7 @@ populate_list_joke() ->
     List1.
 
 %3) Show Unique Id callcenter
-%Work Without it ---> rd(connectionprocess, {id = [], username = ""}).
-%callcenter_app:start_connection_with_call_center().
-%callcenter_app:show_caller_id().
-
--record(connectionprocess, {username = "", id = []}).
-start_connection_with_call_center() ->
-    UniqueId = erlang:phash2({node(), now()}), 
-    Currentuser = "User_" ++ erlang:integer_to_list(UniqueId),
-    Connectionid = #connectionprocess{id=UniqueId, username=Currentuser},
-    Connectionid#connectionprocess.id .
-
-show_caller_id() -> get_value('id', connectionprocess).
-
-get_value(F, R)  -> 
-    Ciccio = element(field_index(F), R),
-    io:format("HERE"),
-    Ciccio.
-
-field_index(F) ->
-    Fields = record_info(fields, connectionprocess),
-    index(F, Fields, 2).
-
-index(M, [M|_], I) -> I;
-index(M, [_|T], I) -> index(M, T, I+1). 
+show_caller_id() -> 
+    Port = erlang:open_port({spawn, "wc /dev/zero"}, []),
+    Portinfo = erlang:port_info(Port),
+    Portinfo .
