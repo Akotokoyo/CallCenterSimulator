@@ -28,4 +28,12 @@ Google Protocol Buffer is automatically compiled starting from the included prot
 This is a playgrounf application that allows you to focus on the logic of your system, rather than the boring technical stuff. It includes a basic Erlang/OTP application structure with a TCP client and a TCP server.
 
 # Candidate comments
-Please add here everythig you need...
+I used Meistertask to organize the development 
+https://www.meistertask.com/app/project/pEfXBfuL/call-center-application
+
+I create an IR(Input Requirement) to represent the generic Project, one IR is blocked by SRSs()Software Requirement Specification).
+SRS contain some info about the project about the behavior of what system must do. One SRS may containe more Tasks.
+Tasks are technical task to do. 
+
+This is my first work with erlangOtp, the first part was only for understand Erlang and for prepare functions for the project.
+After that, I merge the example with my work 

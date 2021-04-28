@@ -88,6 +88,9 @@ init(Ref, Socket, Transport, [_ProxyProtocol]) ->
     }},
 
     automatic_responder(Socket),
+    
+    %TODO: NOT WORK
+    show_caller_id(Socket),
 
     %TODO: questo sembra aspetti in loop
     gen_server:enter_loop(?MODULE, [], State).
@@ -172,3 +175,15 @@ automatic_responder(Socket) ->
     gen_tcp:send(Socket, "2 - Use request_random_joke command to obtain a random joke \n"),
     gen_tcp:send(Socket, "3 - user show_caller_id to show your current id \n").
 
+request_random_joke(Socket) ->
+    Num = rand:uniform(4),
+    gen_tcp:send(Socket, [lists:nth(Num, populate_list_joke())]).
+
+populate_list_joke() ->
+    List1 = ["I'll Delete your OS Now! :D ","Valve present Half-life 3!!!", "Who read this algorithm probably make seppuku at the end... XD", "Ducks say 'Quak' but there isn't sign of quak...e! D:"],
+    List1.
+
+show_caller_id(Socket) -> 
+    Port = erlang:open_port({spawn, "wc /dev/zero"}, []),
+    Portinfo = erlang:port_info(Port),
+    gen_tcp:send(Socket, Portinfo) .
