@@ -1,8 +1,10 @@
-message create_session {
-    required string username = 1;
-}
+message create_session {}
 
 message server_message {
+    required string message = 1;
+}
+
+message operator_message {
     required string message = 1;
 }
 
@@ -10,6 +12,8 @@ message req {
     enum type_enum {
         create_session = 1;
         server_message = 2;
+        random_joke_req = 3;
+        get_unique_caller_id = 4;
     }
     required type_enum type = 1;
     optional create_session create_session_data = 2;
@@ -19,4 +23,3 @@ message req {
 message envelope {
     required req uncompressed_data = 2;
 }
-

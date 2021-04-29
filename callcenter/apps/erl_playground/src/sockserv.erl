@@ -30,7 +30,8 @@
 
 -record(state, {
     socket :: any(), %ranch_transport:socket(),
-    transport
+    transport,
+    unique_id
 }).
 -type state() :: #state{}.
 
@@ -82,17 +83,12 @@ init(Ref, Socket, Transport, [_ProxyProtocol]) ->
     Opts = [{packet, 2}, {packet_size, 16384}, {active, once}, {nodelay, true}],
     _ = Transport:setopts(Socket, Opts),
 
-    State = {ok, #state{
+    State = #state{
         socket = Socket,
-        transport = Transport
-    }},
+        transport = Transport,
+        unique_id = show_caller_id()
+    },
 
-    automatic_responder(Socket),
-    
-    %TODO: NOT WORK
-    show_caller_id(Socket),
-
-    %TODO: questo sembra aspetti in loop
     gen_server:enter_loop(?MODULE, [], State).
 
 %% ------------------------------------------------------------------
@@ -101,7 +97,7 @@ init(Ref, Socket, Transport, [_ProxyProtocol]) ->
 
 %% This function is never called. We only define it so that
 %% we can use the -behaviour(gen_server) attribute.
-init([]) -> {ok, undefined}.
+init([]) -> undefined.
 
 handle_cast(Message, State) ->
     _ = lager:notice("unknown handle_cast ~p", [Message]),
@@ -110,22 +106,22 @@ handle_cast(Message, State) ->
 handle_info({tcp, _Port, <<>>}, State) ->
     _ = lager:notice("empty handle_info state: ~p", [State]),
     {noreply, State};
-handle_info({tcp, _Port, Packet}, State = {ok, #state{socket = Socket}}) ->
-    Req = utils:open_envelope(Packet),
-
-    State = process_packet(Req, State, utils:unix_timestamp()),
+handle_info({tcp, _Port, Packet}, State = #state{socket = Socket}) ->
+    self() ! {packet, Packet},
     ok = inet:setopts(Socket, [{active, once}]),
-    gen_server:cast(self(), test),
     {noreply, State};
 handle_info({tcp_closed, _Port}, State) ->
     {stop, normal, State};
-%%%%%%%%%%%%%%%%%%%%%%% HANDLE TCP_ERROR WITH MESSAGE
-handle_info({tcp_error, _Socket, Reason}, State) ->
+handle_info({tcp_error, _Socket, Reason}, State) -> 
     io:fwrite("Error: ~p~n", [Reason]),
     {stop, normal, State};
-%%%%%%%%%%%%%%%%%%%%%%%
+handle_info({packet, Packet}, State) ->
+    Req = utils:open_envelope(Packet),
+    NewState = process_packet(Req, State, utils:unix_timestamp()),
+    {noreply, NewState};
+
 handle_info(Message, State) ->
-    _ = lager:notice("unknown handle_info ~p", [Message]),
+    _ = lager:notice("unknown handle_info ~p -- ~p", [Message, State]),
     {noreply, State}.
 
 handle_call(Message, _From, State) ->
@@ -150,40 +146,48 @@ code_change(_OldVsn, State, _Extra) ->
 process_packet(undefined, State, _Now) ->
     _ = lager:notice("client sent invalid packet, ignoring ~p",[State]),
     State;
-process_packet(#req{ type = Type } = Req, State = {ok, #state{socket = Socket, transport = Transport}}, _Now)
-    when Type =:= create_session ->
-    #req{
-        create_session_data = #create_session {
-            username = UserName
-        }
-    } = Req,
-    _ = lager:info("create_session received from ~p", [UserName]),
+process_packet(#req{ type = Type } = Req, State = #state{}, _Now) ->
+    case handle_request(Type, Req, State) of
+        {noreply, NewState} -> NewState;
+        {Response, NewState} -> send(Response, NewState), NewState
+    end.
 
-    Response = #req{
+send(Response, #state{socket = Socket, transport = Transport}) ->
+	send(Response, Socket, Transport).
+
+send(Response, Socket, Transport) ->
+    Data = utils:add_envelope(Response),
+    Transport:send(Socket, Data).
+    
+server_message(Msg) ->
+    #req{
         type = server_message,
         server_message_data = #server_message {
-            message = <<"OK">>
+            message = Msg
         }
-    },
-    Data = utils:add_envelope(Response),
-    Transport:send(Socket,Data),
+    }.
 
-    State.
+handle_request(create_session, #req{}, State) ->
+    NewState = State#state{},
+    {noreply, NewState};
+handle_request(random_joke_req, _Req, State) ->
+    {server_message(request_random_joke()), State};
+handle_request(get_unique_caller_id, _Req, #state{unique_id = UID} = State) ->
+    {server_message(
+        io_lib:format("Unique Caller Id : ~p \n", [UID])
+      ), State}.
 
-automatic_responder(Socket) -> 
-    gen_tcp:send(Socket, "1 - Use show_option_list command to show Option List \n"),
-    gen_tcp:send(Socket, "2 - Use request_random_joke command to obtain a random joke \n"),
-    gen_tcp:send(Socket, "3 - user show_caller_id to show your current id \n").
-
-request_random_joke(Socket) ->
+request_random_joke() ->
     Num = rand:uniform(4),
-    gen_tcp:send(Socket, [lists:nth(Num, populate_list_joke())]).
+    io_lib:format("Random Joke \n ~s~n", [lists:nth(Num, populate_list_joke())]).
 
 populate_list_joke() ->
-    List1 = ["I'll Delete your OS Now! :D ","Valve present Half-life 3!!!", "Who read this algorithm probably make seppuku at the end... XD", "Ducks say 'Quak' but there isn't sign of quak...e! D:"],
+    List1 = ["I'll Delete your OS Now! :D ",
+             "Valve present Half-life 3!!!", 
+             "Who read this algorithm probably make seppuku at the end... XD", 
+             "Ducks say 'Quak' but there isn't sign of quak...e! D:"],
     List1.
 
-show_caller_id(Socket) -> 
-    Port = erlang:open_port({spawn, "wc /dev/zero"}, []),
-    Portinfo = erlang:port_info(Port),
-    gen_tcp:send(Socket, Portinfo) .
+show_caller_id() -> 
+    Id = erlang:phash2({node(), now()}), 
+    Id.

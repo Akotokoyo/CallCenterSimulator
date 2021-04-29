@@ -1,6 +1,5 @@
 -module(callcenter_app).
 
-%TODO: not necessary
 -import(connection_app, [encode_msg/2, decode_msg/2]).
 -behaviour(application).
 
