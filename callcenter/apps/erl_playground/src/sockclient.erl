@@ -9,7 +9,10 @@
 
 -export([start_link/0]). -ignore_xref([{start_link, 4}]).
 -export([connect/1, disconnect/0]).
--export([send_create_session/0, send_get_unique_caller_id/0, show_random_joke/0]).
+-export([send_create_session/0, 
+         send_get_unique_caller_id/0, 
+         show_random_joke/0,
+         ask_an_operator/1]).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Exports
@@ -72,7 +75,18 @@ send_get_unique_caller_id() ->
         type = get_unique_caller_id
     },
     gen_server:cast(whereis(?SERVER), {send_msg, Req}).
-    
+
+%4 Ask an Operator
+%-spec ask_an_operator() -> ok.
+ask_an_operator(Msg) ->
+    Req = #req{
+        type = operator_req,
+        operator_msg_data = #operator_message{
+            message = Msg
+        }
+    },
+    gen_server:cast(whereis(?SERVER), {send_msg, Req}).
+  
 %% ------------------------------------------------------------------
 %% gen_server Function Definitions
 %% ------------------------------------------------------------------

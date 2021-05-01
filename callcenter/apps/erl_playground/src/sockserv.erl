@@ -31,6 +31,7 @@
 -record(state, {
     socket :: any(), %ranch_transport:socket(),
     transport,
+    operator,
     unique_id
 }).
 -type state() :: #state{}.
@@ -175,7 +176,16 @@ handle_request(random_joke_req, _Req, State) ->
 handle_request(get_unique_caller_id, _Req, #state{unique_id = UID} = State) ->
     {server_message(
         io_lib:format("Unique Caller Id : ~p \n", [UID])
-      ), State}.
+      ), State};
+handle_request(operator_req,
+            #req{
+                operator_msg_data = #operator_message{
+                    message = Msg
+                }
+            },
+            #state{} = State) ->
+    {server_message(operator_algorithm(Msg)), State}.
+
 
 request_random_joke() ->
     Num = rand:uniform(4),
@@ -191,3 +201,21 @@ populate_list_joke() ->
 show_caller_id() -> 
     Id = erlang:phash2({node(), now()}), 
     Id.
+
+operator_algorithm(Msg) ->
+    {Num,Rest} = string:to_integer(Msg),
+    if Num == error ->
+        Msg
+    ; true ->
+        check_number_is_even(Num)
+    end.
+
+check_number_is_even(Num) ->
+    Rest = Num rem 2,
+    Result = 
+        if Rest == 0 ->
+            "This Number is Even! \n"
+        ;  true ->
+            "This Number is Odd! \n"
+        end,
+    Result.

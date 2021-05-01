@@ -4,10 +4,10 @@
 
 -record(service, {name, handler}).
 
-%TODO: METTERE NOMI CONSONI
 services() ->
     [#service{name = "Show Random Joke", handler=fun show_random_joke/0},
-     #service{name = "My caller ID", handler=fun handle_caller_id/0}].
+     #service{name = "My caller ID", handler=fun handle_caller_id/0},
+     #service{name = "Ask the operator", handler=fun ask_the_operator/0}].
 
 run() ->
 	Flusher = spawn(fun flush/0),
@@ -38,7 +38,34 @@ build_help_message(Msg, N, [#service{name=Name}|Services]) ->
 help_ask(NOptions) ->
     case io:fread("Choose an option> ", "~d") of
         {ok, [X]} when X >= 1 andalso X =< NOptions -> X;
-        _ -> io:format("Invalid answer.~n"), help_ask(NOptions)
+        _ -> io:format("Input Not Valid, Retry. \n"), help_ask(NOptions)
+    end.
+
+ask_the_operator() ->
+    io:format("Hi, I'm your personal Operator! Digit Something... \n"),
+    operator_interaction().
+
+operator_interaction() ->
+    case ask_input("> ") of
+        Msg ->
+            sockclient:ask_an_operator(Msg),
+            operator_interaction()
+    end.
+
+%todo: verify number?
+ask_input(Prompt) ->
+    case io:get_line(Prompt) of
+        eof ->
+            io:format("Invalid input."),
+            ask_input(Prompt);
+        {error, Desc} ->
+            io:format("Error: ~s", [Desc]),%
+            ask_input(Prompt);
+        Input ->
+            case string:trim(Input) of
+                "" -> ask_input(Prompt);
+                S -> S
+            end
     end.
 
 show_random_joke() ->
