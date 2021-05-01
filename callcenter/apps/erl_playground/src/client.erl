@@ -52,7 +52,6 @@ operator_interaction() ->
             operator_interaction()
     end.
 
-%todo: verify number?
 ask_input(Prompt) ->
     case io:get_line(Prompt) of
         eof ->
