@@ -3,6 +3,7 @@
 -export([run/0]).
 
 -record(service, {name, handler}).
+-define('CUSTOM_INDEX', 3).
 
 services() ->
     [#service{name = "Show Random Joke", handler=fun show_random_joke/0},
@@ -43,13 +44,18 @@ help_ask(NOptions) ->
 
 ask_the_operator() ->
     io:format("Hi, I'm your personal Operator! Digit Something... \n"),
-    operator_interaction().
+    operator_interaction(0).
 
-operator_interaction() ->
-    case ask_input("> ") of
-        Msg ->
-            sockclient:ask_an_operator(Msg),
-            operator_interaction()
+operator_interaction(CurrentIndex) ->
+    if CurrentIndex =< ?CUSTOM_INDEX ->
+        case ask_input("> ") of
+            Msg ->
+                sockclient:ask_an_operator(Msg),
+                UpdatedIndex = CurrentIndex +1,
+                operator_interaction(UpdatedIndex)
+        end
+    ; true ->
+        run()
     end.
 
 ask_input(Prompt) ->

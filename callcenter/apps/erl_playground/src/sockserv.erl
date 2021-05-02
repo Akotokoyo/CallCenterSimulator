@@ -31,7 +31,6 @@
 -record(state, {
     socket :: any(), %ranch_transport:socket(),
     transport,
-    operator,
     unique_id
 }).
 -type state() :: #state{}.
