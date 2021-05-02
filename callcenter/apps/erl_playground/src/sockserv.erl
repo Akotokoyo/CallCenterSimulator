@@ -188,7 +188,7 @@ handle_request(operator_req,
 
 request_random_joke() ->
     Num = rand:uniform(4),
-    io_lib:format("Random Joke \n ~s~n", [lists:nth(Num, populate_list_joke())]).
+    io_lib:format("Random Joke \n ~s\n", [lists:nth(Num, populate_list_joke())]).
 
 populate_list_joke() ->
     List1 = ["I'll Delete your OS Now! :D ",
